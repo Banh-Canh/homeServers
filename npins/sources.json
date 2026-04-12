@@ -1,0 +1,18 @@
+{
+  "pins": {
+    "hephaestus": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "RPCU",
+        "repo": "hephaestus"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "f7a25c66cb1f71f2f72f3c3f4a584f9205820c5c",
+      "url": "https://github.com/RPCU/hephaestus/archive/f7a25c66cb1f71f2f72f3c3f4a584f9205820c5c.tar.gz",
+      "hash": "sha256-fykPMmRNozPgo1SOF5aJxNfvX60Vv4kfWb4bOTX5Prw="
+    }
+  },
+  "version": 7
+}
