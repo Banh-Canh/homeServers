@@ -4,11 +4,17 @@ metadata:
   name: golinky
 spec:
   ingressClassName: tailscale
-  defaultBackend:
-    service:
-      name: golinky
-      port:
-        number: 80
+  rules:
+    - host: home
+      http:
+        paths:
+          - backend:
+              service:
+                name: golinky
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
   tls:
     - hosts:
         - home
