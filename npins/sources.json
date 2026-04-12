@@ -9,9 +9,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "f7a25c66cb1f71f2f72f3c3f4a584f9205820c5c",
-      "url": "https://github.com/RPCU/hephaestus/archive/f7a25c66cb1f71f2f72f3c3f4a584f9205820c5c.tar.gz",
-      "hash": "sha256-fykPMmRNozPgo1SOF5aJxNfvX60Vv4kfWb4bOTX5Prw="
+      "revision": "48cf0c5df8b81628c1676baeb58788f42eb3f5b5",
+      "url": "https://github.com/RPCU/hephaestus/archive/48cf0c5df8b81628c1676baeb58788f42eb3f5b5.tar.gz",
+      "hash": "sha256-d7TZQWLAPG4NVac+oCkdW+ktWcF+xo8TMIty0OTVqaM="
     }
   },
   "version": 7
