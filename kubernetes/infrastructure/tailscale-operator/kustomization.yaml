@@ -1,6 +1,5 @@
 resources:
   - https://raw.githubusercontent.com/tailscale/tailscale/refs/tags/v1.96.5/cmd/k8s-operator/deploy/manifests/operator.yaml
-
 patches:
   - target:
       kind: Secret
