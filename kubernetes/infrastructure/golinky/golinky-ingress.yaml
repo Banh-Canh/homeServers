@@ -3,18 +3,12 @@ kind: Ingress
 metadata:
   name: golinky
 spec:
+  defaultBackend:
+    service:
+      name: golinky
+      port:
+        number: 80
   ingressClassName: tailscale
-  rules:
-    - host: home
-      http:
-        paths:
-          - backend:
-              service:
-                name: golinky
-                port:
-                  number: 80
-            path: /
-            pathType: Prefix
   tls:
     - hosts:
         - home
