@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: golinky
+  namespace: golinky
+  annotations:
+    tailscale.com/hostname: home
+spec:
+  type: LoadBalancer
+  loadBalancerClass: tailscale
