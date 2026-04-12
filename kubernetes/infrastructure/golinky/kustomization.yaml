@@ -1,0 +1,4 @@
+namespace: golinky
+resources:
+  - golinky-ingress.yaml
+  - https://github.com/didactiklabs/golinky/releases/download/v0.3.1/bundle.yaml
