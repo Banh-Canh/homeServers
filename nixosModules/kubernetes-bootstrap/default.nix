@@ -86,6 +86,7 @@ in
           bindPort: ${toString cfg.bindPort}
         nodeRegistration:
           name: "${config.networking.hostName}"
+          taints: []
         ---
         apiVersion: kubeadm.k8s.io/v1beta3
         kind: ClusterConfiguration
