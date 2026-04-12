@@ -1,0 +1,14 @@
+l2announcements:
+  enabled: true
+socketLB:
+  hostNamespaceOnly: true
+kubeProxyReplacement: true
+envoy:
+  enabled: false
+cni:
+  exclusive: false
+ipam:
+  operator:
+    clusterPoolIPv4PodCIDRList:
+      - "10.244.0.0/16"
+    clusterPoolIPv4MaskSize: 23

@@ -1,0 +1,5 @@
+resources:
+  - cilium.yaml
+  - flux-operator.yaml
+  - topolvm.yaml
+  - fluxcd/

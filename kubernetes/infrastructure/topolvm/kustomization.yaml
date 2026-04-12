@@ -1,0 +1,10 @@
+namespace: topolvm-system
+resources:
+  - helmrepo.yaml
+  - helmrelease.yaml
+configMapGenerator:
+  - name: topolvm-values
+    files:
+      - values.yaml
+generatorOptions:
+  disableNameSuffixHash: true

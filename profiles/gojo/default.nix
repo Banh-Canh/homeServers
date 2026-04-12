@@ -78,11 +78,17 @@ in
       repositoryUrl = "https://github.com/Banh-Canh/homeServers"; # TODO: Update with your actual remote URL
       repositoryBranch = "main";
     };
+    topolvmVg = {
+      enable = true;
+      diskId = "ata-ST2000DM008-2FR102_ZFL3WLE1"; # Run: ls -l /dev/disk/by-id/ | grep sda
+      volumeGroupName = "topolvm-vg";
+    };
   };
 
   imports = [
     ../../nixosModules/networkManager.nix
     ../../nixosModules/kubernetes-bootstrap # Import the new module
+    ../../nixosModules/topolvm-vg
     (import ../../users/homelab {
       inherit
         config

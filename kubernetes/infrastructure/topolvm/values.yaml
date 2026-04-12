@@ -1,0 +1,19 @@
+cert-manager:
+  enabled: false
+
+lvmd:
+  managed: true
+  deviceClasses:
+    - name: default
+      default: true
+      spare-gb: 10
+
+storageClasses:
+  - name: topolvm-provisioner
+    storageClass:
+      fsType: xfs
+      isDefaultClass: true
+      volumeBindingMode: WaitForFirstConsumer
+      allowVolumeExpansion: true
+      additionalParameters:
+        "topolvm.io/device-class": "default"
