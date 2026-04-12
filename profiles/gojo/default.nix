@@ -78,6 +78,23 @@ in
       repositoryUrl = "https://github.com/Banh-Canh/homeServers"; # TODO: Update with your actual remote URL
       repositoryBranch = "main";
     };
+    kubernetesGitops = {
+      enable = true;
+      cilium = {
+        chartVersion = "1.18.6";
+        k8sServiceHost = "10.207.7.2";
+        k8sServicePort = 6443;
+        inherit (config.customNixOSModules.kubernetesBootstrap) podCIDR;
+        podCIDRMaskSize = 23;
+      };
+      flux = {
+        operatorVersion = "v0.40.0";
+        repositoryUrl = "https://github.com/Banh-Canh/homeServers.git";
+        repositoryBranch = "main";
+        clusterPath = "./kubernetes/clusters/homelab";
+        clusterDomain = "banh-canh.local";
+      };
+    };
     topolvmVg = {
       enable = true;
       diskId = "ata-ST2000DM008-2FR102_ZFL3WLE1"; # Run: ls -l /dev/disk/by-id/ | grep sda
@@ -88,6 +105,7 @@ in
   imports = [
     ../../nixosModules/networkManager.nix
     ../../nixosModules/kubernetes-bootstrap # Import the new module
+    ../../nixosModules/kubernetes-gitops
     ../../nixosModules/topolvm-vg
     (import ../../users/homelab {
       inherit
