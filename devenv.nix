@@ -1,34 +1,23 @@
-let
-  sources = import ./npins;
-  inherit (sources) hephaestus;
-  hephaestusSources = import (hephaestus + "/npins");
-
-  kubernetesBootstrapModule = import ./nixosModules/kubernetes-bootstrap {
-    inherit pkgs lib;
-    config = {
-      customNixOSModules.kubernetesBootstrap.enable = true; # Enable to get the derivations
-    };
-  };
-
-  k8sScripts = kubernetesBootstrapModule.config.environment.systemPackages;
-in
 {
   pkgs,
   lib,
   ...
 }:
+let
+  sources = import ./npins;
+  inherit (sources) hephaestus;
+  hephaestusSources = import (hephaestus + "/npins");
+
+in
 {
   imports = [ "${hephaestusSources.nixbook}/devenvModules/devenv.nix" ];
 
-  packages =
-    with pkgs;
-    [
-      jq
-      yq-go
-      colmena
-      npins
-    ]
-    ++ k8sScripts; # Add the k8s bootstrap scripts here
+  packages = with pkgs; [
+    jq
+    yq-go
+    colmena
+    npins
+  ];
 
   env.PATH = lib.mkForce "$PATH"; # No longer need to add $PWD/scripts since they are in packages
 
