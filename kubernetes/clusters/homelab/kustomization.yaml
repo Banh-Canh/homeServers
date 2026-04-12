@@ -4,3 +4,4 @@ resources:
   - topolvm.yaml
   - tailscale-operator.yaml
   - fluxcd/
+  - golinky.yaml
