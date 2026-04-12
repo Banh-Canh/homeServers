@@ -1,13 +1,14 @@
 cert-manager:
   enabled: false
-
 lvmd:
+  args: ["--lvm-path", "/run/current-system/sw/bin/lvm"]
   managed: true
   deviceClasses:
     - name: default
       default: true
       spare-gb: 10
-
+node:
+  args: ["--lvm-path", "/run/current-system/sw/bin/lvm"]
 storageClasses:
   - name: topolvm-provisioner
     storageClass:
