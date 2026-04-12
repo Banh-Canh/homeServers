@@ -13,3 +13,15 @@ spec:
   prune: true
   wait: true
   timeout: 5m
+  patches:
+    - patch: |
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: golinky
+          namespace: golinky
+          annotations:
+            tailscale.com/hostname: g
+      target:
+        kind: Service
+        name: golinky

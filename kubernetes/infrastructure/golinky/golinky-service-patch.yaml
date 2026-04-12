@@ -4,7 +4,7 @@ metadata:
   name: golinky
   namespace: golinky
   annotations:
-    tailscale.com/hostname: home
+    tailscale.com/hostname: placeholder
 spec:
   type: LoadBalancer
   loadBalancerClass: tailscale
