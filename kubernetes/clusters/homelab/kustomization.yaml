@@ -5,3 +5,5 @@ resources:
   - tailscale-operator.yaml
   - fluxcd/
   - golinky.yaml
+  - golinky-w.yaml
+  - golinky-b.yaml
