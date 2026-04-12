@@ -7,11 +7,13 @@
 with lib;
 let
   cfg = config.customNixOSModules.kubernetesGitops;
+  bootstrap = config.customNixOSModules.kubernetesBootstrap;
+  ginx = config.customNixOSModules.ginx;
 
   ciliumValuesContent = ''
     kubeProxyReplacement: true
     k8sServiceHost: "${cfg.cilium.k8sServiceHost}"
-    k8sServicePort: ${toString cfg.cilium.k8sServicePort}
+    k8sServicePort: ${toString bootstrap.bindPort}
     socketLB:
       hostNamespaceOnly: true
     envoy:
@@ -21,52 +23,11 @@ let
     ipam:
       operator:
         clusterPoolIPv4PodCIDRList:
-          - "${cfg.cilium.podCIDR}"
+          - "${bootstrap.podCIDR}"
         clusterPoolIPv4MaskSize: ${toString cfg.cilium.podCIDRMaskSize}
   '';
 
   ciliumValuesFile = pkgs.writeText "cilium-bootstrap-values.yaml" ciliumValuesContent;
-
-  fluxInstanceContent = ''
-    apiVersion: fluxcd.controlplane.io/v1
-    kind: FluxInstance
-    metadata:
-      name: flux
-      namespace: flux-system
-    spec:
-      distribution:
-        version: "2.x"
-        registry: "ghcr.io/fluxcd"
-      components:
-        - source-controller
-        - kustomize-controller
-        - helm-controller
-        - notification-controller
-      cluster:
-        type: kubernetes
-        multitenant: false
-        networkPolicy: true
-        domain: "${cfg.flux.clusterDomain}"
-      kustomize:
-        patches:
-          - target:
-              kind: Deployment
-              name: "(kustomize-controller|helm-controller)"
-            patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --concurrent=42
-      sync:
-        kind: GitRepository
-        url: "${cfg.flux.repositoryUrl}"
-        ref: "refs/heads/${cfg.flux.repositoryBranch}"
-        path: "${cfg.flux.clusterPath}"
-        interval: "1m"
-  '';
-
-  fluxInstanceFile = pkgs.writeText "flux-instance.yaml" fluxInstanceContent;
-
-  fluxOperatorUrl = "https://github.com/controlplaneio-fluxcd/flux-operator/releases/download/${cfg.flux.operatorVersion}/install.yaml";
 in
 {
   options.customNixOSModules.kubernetesGitops = {
@@ -87,16 +48,6 @@ in
         description = "IP address of the Kubernetes API server for Cilium.";
         example = "10.207.7.2";
       };
-      k8sServicePort = mkOption {
-        type = types.int;
-        default = 6443;
-        description = "Port of the Kubernetes API server for Cilium.";
-      };
-      podCIDR = mkOption {
-        type = types.str;
-        default = "10.244.0.0/16";
-        description = "Pod network CIDR.";
-      };
       podCIDRMaskSize = mkOption {
         type = types.int;
         default = 23;
@@ -105,30 +56,10 @@ in
     };
 
     flux = {
-      operatorVersion = mkOption {
-        type = types.str;
-        default = "v0.40.0";
-        description = "Flux Operator release version.";
-      };
-      repositoryUrl = mkOption {
-        type = types.str;
-        description = "Git repository URL for Flux to sync.";
-        example = "https://github.com/Banh-Canh/homeServers.git";
-      };
-      repositoryBranch = mkOption {
-        type = types.str;
-        default = "main";
-        description = "Git branch for Flux to sync.";
-      };
       clusterPath = mkOption {
         type = types.str;
         description = "Path within the repo for this cluster's manifests.";
         example = "./kubernetes/clusters/homelab";
-      };
-      clusterDomain = mkOption {
-        type = types.str;
-        default = "cluster.local";
-        description = "Kubernetes cluster domain.";
       };
     };
   };
@@ -178,8 +109,18 @@ in
 
         export KUBECONFIG="''${KUBECONFIG:-/etc/kubernetes/admin.conf}"
 
-        echo "Installing Flux Operator ${cfg.flux.operatorVersion}..."
-        ${pkgs.kubectl}/bin/kubectl apply -f "${fluxOperatorUrl}"
+        CLUSTER_PATH="${cfg.flux.clusterPath}"
+        CLUSTER_PATH="''${CLUSTER_PATH#./}"
+
+        WORK_DIR=$(mktemp -d)
+        trap "rm -rf $WORK_DIR" EXIT
+
+        echo "Cloning ${ginx.repositoryUrl} (${ginx.repositoryBranch})..."
+        ${pkgs.git}/bin/git clone --depth 1 --branch "${ginx.repositoryBranch}" \
+          "${ginx.repositoryUrl}" "$WORK_DIR/repo"
+
+        echo "Installing Flux Operator..."
+        ${pkgs.kubectl}/bin/kubectl apply -k "$WORK_DIR/repo/kubernetes/infrastructure/fluxcd/operator"
 
         echo "Waiting for Flux Operator to be ready..."
         ${pkgs.kubectl}/bin/kubectl wait --for=condition=Available \
@@ -188,11 +129,11 @@ in
           --timeout=120s
 
         echo "Applying FluxInstance..."
-        ${pkgs.kubectl}/bin/kubectl apply -f "${fluxInstanceFile}"
+        ${pkgs.kubectl}/bin/kubectl apply -k "$WORK_DIR/repo/$CLUSTER_PATH/fluxcd"
 
         echo "Flux bootstrap complete. Flux will now reconcile from:"
-        echo "  repo:   ${cfg.flux.repositoryUrl}"
-        echo "  branch: ${cfg.flux.repositoryBranch}"
+        echo "  repo:   ${ginx.repositoryUrl}"
+        echo "  branch: ${ginx.repositoryBranch}"
         echo "  path:   ${cfg.flux.clusterPath}"
       '')
     ];

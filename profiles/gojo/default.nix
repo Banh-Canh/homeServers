@@ -80,20 +80,8 @@ in
     };
     kubernetesGitops = {
       enable = true;
-      cilium = {
-        chartVersion = "1.18.6";
-        k8sServiceHost = "10.207.7.2";
-        k8sServicePort = 6443;
-        inherit (config.customNixOSModules.kubernetesBootstrap) podCIDR;
-        podCIDRMaskSize = 23;
-      };
-      flux = {
-        operatorVersion = "v0.40.0";
-        repositoryUrl = "https://github.com/Banh-Canh/homeServers.git";
-        repositoryBranch = "main";
-        clusterPath = "./kubernetes/clusters/homelab";
-        clusterDomain = "banh-canh.local";
-      };
+      cilium.k8sServiceHost = "10.207.7.2";
+      flux.clusterPath = "./kubernetes/clusters/homelab";
     };
     topolvmVg = {
       enable = true;
