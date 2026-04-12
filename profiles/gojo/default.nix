@@ -52,6 +52,7 @@ in
 
   customNixOSModules = {
     networkManager.enable = true;
+    kubernetesBootstrap.enable = true; # Enable the new module
     kubernetes = {
       enable = true;
       version = {
@@ -63,7 +64,7 @@ in
       didactiklabs.enable = true;
     };
     ginx = {
-      enable = false;
+      enable = true;
       repositoryUrl = "https://github.com/Banh-Canh/homeServers"; # TODO: Update with your actual remote URL
       repositoryBranch = "main";
     };
@@ -71,6 +72,7 @@ in
 
   imports = [
     ../../nixosModules/networkManager.nix
+    ../../nixosModules/kubernetes-bootstrap # Import the new module
     (import ../../users/homelab {
       inherit
         config
