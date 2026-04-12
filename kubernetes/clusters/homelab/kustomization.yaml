@@ -2,4 +2,5 @@ resources:
   - cilium.yaml
   - flux-operator.yaml
   - topolvm.yaml
+  - tailscale-operator.yaml
   - fluxcd/
