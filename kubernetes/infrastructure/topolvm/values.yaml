@@ -1,3 +1,5 @@
+controller:
+  replicaCount: 1
 cert-manager:
   enabled: false
 lvmd:
