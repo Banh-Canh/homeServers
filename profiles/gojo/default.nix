@@ -32,7 +32,8 @@ in
     kernelParams = [ "elevator=none" ];
     loader.grub = {
       enable = true;
-      devices = [ "/dev/sda" ];
+      # After install, replace with stable id from `ls -l /dev/disk/by-id/ | grep -v part`
+      devices = [ "/dev/disk/by-id/ata-ST2000DM008-2FR102_ZFL3WLE1" ];
     };
   };
   fileSystems."/" = {

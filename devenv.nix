@@ -42,7 +42,7 @@ in
     echo ""
     echo "  update-gojo  - Deploy NixOS configuration to gojo via Colmena"
     echo "  build-iso    - Build bootable NixOS installation ISO image"
-    echo "                 Example: build-iso --argstr bootloader grub --argstr partition root-grub --argstr disk /dev/sda --argstr cloud gojo"
+    echo "                 Example: build-iso --argstr bootloader grub --argstr partition root-grub --argstr disk /dev/disk/by-id/ata-XXXX --argstr cloud gojo"
     echo ""
   '';
 }
