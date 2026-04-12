@@ -52,7 +52,17 @@ in
 
   customNixOSModules = {
     networkManager.enable = true;
-    kubernetesBootstrap.enable = true; # Enable the new module
+    kubernetesBootstrap = {
+      enable = true;
+      # Explicitly setting defaults for clarity
+      podCIDR = "10.244.0.0/16";
+      kubernetesVersion = config.customNixOSModules.kubernetes.version.kubeadm;
+      dnsDomain = "banh-canh.local";
+      serviceSubnet = "10.96.0.0/16";
+      advertiseAddress = ""; # Leave empty for kubeadm auto-detect
+      bindPort = 6443;
+      clusterName = "banh-canh";
+    };
     kubernetes = {
       enable = true;
       version = {

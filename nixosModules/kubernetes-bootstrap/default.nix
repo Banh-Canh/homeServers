@@ -4,7 +4,6 @@
   pkgs,
   ...
 }:
-
 with lib;
 let
   cfg = config.customNixOSModules.kubernetesBootstrap;
@@ -32,60 +31,94 @@ in
         The Kubernetes version to use for kubeadm init.
       '';
     };
+
+    dnsDomain = mkOption {
+      type = types.str;
+      default = "cluster.local";
+      description = ''
+        The DNS domain for Kubernetes services.
+      '';
+    };
+
+    serviceSubnet = mkOption {
+      type = types.str;
+      default = "10.96.0.0/12";
+      description = ''
+        The Service Network CIDR for Kubernetes.
+      '';
+    };
+
+    advertiseAddress = mkOption {
+      type = types.str;
+      default = "";
+      description = ''
+        The IP address the API Server advertises to other cluster members.
+        Leave empty for kubeadm to auto-detect.
+      '';
+    };
+
+    bindPort = mkOption {
+      type = types.int;
+      default = 6443;
+      description = ''
+        The port for the API Server to bind to.
+      '';
+    };
+
+    clusterName = mkOption {
+      type = types.str;
+      default = "kubernetes";
+      description = ''
+        The name of the Kubernetes cluster.
+      '';
+    };
   };
 
-  config = mkIf cfg.enable {
-    environment.systemPackages = [
-      (pkgs.writeShellScriptBin "k8s-init-controlplane" ''
-        #!/usr/bin/env bash
-        set -euo pipefail
+  config = mkIf cfg.enable (
+    let
+      # Dynamically generated kubeadm configuration YAML
+      # This content is not an option itself, but generated from other options.
+      generatedKubeadmConfigYamlContent = ''
+        apiVersion: kubeadm.k8s.io/v1beta3
+        kind: InitConfiguration
+        localAPIEndpoint:
+          advertiseAddress: "${cfg.advertiseAddress}"
+          bindPort: ${toString cfg.bindPort}
+        nodeRegistration:
+          name: "${config.networking.hostName}"
+        ---
+        apiVersion: kubeadm.k8s.io/v1beta3
+        kind: ClusterConfiguration
+        kubernetesVersion: "${cfg.kubernetesVersion}"
+        networking:
+          podSubnet: "${cfg.podCIDR}"
+          serviceSubnet: "${cfg.serviceSubnet}"
+          dnsDomain: "${cfg.dnsDomain}"
+        clusterName: "${cfg.clusterName}" # Use the configurable clusterName
+      '';
 
-        POD_CIDR="${cfg.podCIDR}"
-        KUBERNETES_VERSION="${cfg.kubernetesVersion}"
+      kubeadmConfigStorePath = pkgs.writeText "kubeadm-init-config.yaml" generatedKubeadmConfigYamlContent;
+    in
+    {
+      environment.etc."kubeadm-init-config.yaml".source = kubeadmConfigStorePath;
 
-        echo "Initializing control plane with pod-cidr: $POD_CIDR"
+      environment.systemPackages = [
+        (pkgs.writeShellScriptBin "k8s-init-controlplane" ''
+          #!/usr/bin/env bash
+          set -euo pipefail
 
-        kubeadm init \
-            --pod-network-cidr="$POD_CIDR" \
-            --service-cidr=10.96.0.0/12 \
-            --kubernetes-version="$KUBERNETES_VERSION"
+          KUBEADM_CONFIG_FILE="${kubeadmConfigStorePath}"
 
-        mkdir -p "$HOME/.kube"
-        cp -i /etc/kubernetes/admin.conf "$HOME/.kube/config"
+          echo "Initializing control plane using config file: $KUBEADM_CONFIG_FILE"
 
-        echo "Control plane initialized. Run 'k8s-install-cni' next."
-      '')
+          kubeadm init --config "$KUBEADM_CONFIG_FILE"
 
-      (pkgs.writeShellScriptBin "k8s-install-cni" ''
-        #!/usr/bin/env bash
-        set -euo pipefail
+          mkdir -p "$HOME/.kube"
+          cp -i /etc/kubernetes/admin.conf "$HOME/.kube/config"
 
-        export KUBECONFIG="''${KUBECONFIG:-$HOME/.kube/config}"
-        POD_CIDR="${cfg.podCIDR}"
-
-        echo "Installing Flannel CNI with pod-cidr: $POD_CIDR"
-        kubectl apply -f "https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml"
-
-        echo "CNI installed. Checking nodes..."
-        kubectl get nodes
-      '')
-
-      (pkgs.writeShellScriptBin "k8s-join-worker" ''
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        if [[ -z "''${1:-}" ]]; then
-            echo "Usage: k8s-join-worker <join-command>"
-            echo ""
-            echo "Get the join command from the control plane:"
-            echo "  kubeadm token create --print-join-command"
-            exit 1
-        fi
-
-        echo "Running: $1"
-        eval "$1"
-        echo "Worker node joined."
-      '')
-    ];
-  };
+          echo "Control plane initialized." # Removed reference to k8s-install-cni
+        '')
+      ];
+    }
+  );
 }
