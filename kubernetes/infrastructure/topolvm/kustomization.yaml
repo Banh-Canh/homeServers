@@ -1,5 +1,6 @@
 namespace: topolvm-system
 resources:
+  - namespace.yaml
   - helmrepo.yaml
   - helmrelease.yaml
 configMapGenerator:
