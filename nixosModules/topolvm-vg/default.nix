@@ -53,20 +53,20 @@ in
           exit 1
         fi
 
-        if ${pkgs.lvm2}/bin/vgs "$VG_NAME" &>/dev/null; then
+        if vgs "$VG_NAME" &>/dev/null; then
           echo "Volume group '$VG_NAME' already exists:"
-          ${pkgs.lvm2}/bin/vgs "$VG_NAME"
+          vgs "$VG_NAME"
           exit 0
         fi
 
         echo "Creating physical volume on $DISK..."
-        ${pkgs.lvm2}/bin/pvcreate "$DISK"
+        pvcreate "$DISK"
 
         echo "Creating volume group '$VG_NAME' on $DISK..."
-        ${pkgs.lvm2}/bin/vgcreate "$VG_NAME" "$DISK"
+        vgcreate "$VG_NAME" "$DISK"
 
         echo "Done."
-        ${pkgs.lvm2}/bin/vgs "$VG_NAME"
+        vgs "$VG_NAME"
       '')
     ];
   };

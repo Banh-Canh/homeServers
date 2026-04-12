@@ -20,6 +20,8 @@ let
       enabled: false
     cni:
       exclusive: false
+    operator:
+      replicas: 1
     ipam:
       operator:
         clusterPoolIPv4PodCIDRList:
