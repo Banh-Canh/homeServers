@@ -6,4 +6,3 @@ resources:
   - fluxcd/
   - golinky.yaml
   - golinky-w.yaml
-  - golinky-b.yaml
