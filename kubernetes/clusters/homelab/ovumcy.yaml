@@ -23,7 +23,7 @@ spec:
         spec:
           tls:
           - hosts:
-            - nginx
+            - ovumcy
       target:
         kind: Ingress
         name: ovumcy
