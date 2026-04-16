@@ -20,8 +20,10 @@ spec:
         metadata:
           name: ovumcy
           namespace: ovumcy
-          annotations:
-            tailscale.com/hostname: ovumcy
+        spec:
+          tls:
+          - hosts:
+            - nginx
       target:
         kind: Ingress
         name: ovumcy
