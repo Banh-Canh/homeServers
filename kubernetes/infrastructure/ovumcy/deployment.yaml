@@ -22,6 +22,11 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ovumcy-secret
+                  key: secret-key
             - name: TZ
               value: UTC
             - name: DEFAULT_LANGUAGE
