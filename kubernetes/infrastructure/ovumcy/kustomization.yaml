@@ -1,0 +1,7 @@
+namespace: ovumcy
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  - pvc.yaml
+  - ingress.yaml
